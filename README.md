@@ -78,6 +78,10 @@ If you've read everything above, this should be fairly straightforward:
 	connection.close()
 	return recipients
 
+## Using the Library
+
+To try out the library, navigate to the `pymessage_lite` directory and enter `python imessage_test.py`. This test script will print out all your iMessage recipients and let you display all messages exchanged with a given recipient.
+
 ## Compatibility
 
 This has been written and tested with OS X 10.11 "El Capitan". It might stop working in future releases of OS X as iMessage evolves.
