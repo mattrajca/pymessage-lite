@@ -4,7 +4,7 @@
 
 ## Background
 
-While there is no API for accessing iMessage data on OS X or iOS, OS X users can query the [sqlite](https://www.sqlite.org/) database that stores iMessage data. It can be found in the `~/Library/Messages/` directory under the name `chat.db`.
+While there are no APIs for accessing iMessage data on OS X or iOS, OS X users can query the [sqlite](https://www.sqlite.org/) database that stores iMessage data. It can be found in the `~/Library/Messages` directory under the name `chat.db`.
 
 The database schema is undocumented, but by poking around with the `sqlite3` command line tool it's easy to figure out how it works.
 
@@ -26,8 +26,8 @@ chat_message_join
 
 The contents of these tables should be fairly self-explanatory.
 
-- `attachment` keeps track of any attachments sent, including paths to where they are stored locally as well as their file format.
-- `handle` keeps track of all known recipients (people you previously exchanged iMessages with).
+- `attachment` keeps track of any attachments (files, images, audio clips) sent or received, including paths to where they are stored locally as well as their file format.
+- `handle` keeps track of all known recipients (people with whom you previously exchanged iMessages).
 - `chat` keeps track of your conversation threads.
 - `message` keeps track of all messages along with their text contents, date, and the ID of the recipient.
 
@@ -44,7 +44,7 @@ CREATE TABLE message (ROWID INTEGER PRIMARY KEY AUTOINCREMENT, guid TEXT UNIQUE 
 ...
 ```
 
-If you focus on the `CREATE_TABLE` line, you'll notice it's followed by the columns of the table. For example, the third column, `text TEXT`, stores the context of the message as text and the `handle_id` column stores the ID of the recipient who sent the message, which you can in turn look up in the `handle` table. While none of this is documented, you can probably guess what each column stores. For example, `INTEGERis_read` probably stores a `1` if a message has been acknowledged with a read recipient and `0` otherwise.
+If you focus on the `CREATE_TABLE` line, you'll notice it's followed by the columns of the table. For example, the third column, `text TEXT`, stores the contents of the message as text and the `handle_id` column stores the ID of the recipient who sent the message, which you can in turn look up in the `handle` table. While none of this is documented, you can probably guess what each column stores. For example, `INTEGER is_read` probably stores a `1` if a message has been acknowledged with a read recipient and `0` otherwise.
 
 To view all your recipients, you can type:
 
@@ -52,7 +52,7 @@ To view all your recipients, you can type:
 
 And to view all message exchanged with a recipient of a given ID:
 
-`SELECT * FROM message WHERE handle_id=<ID>`
+`SELECT * FROM message WHERE handle_id=<ID>;`
 
 This is standard SQL, and there are plenty of [references on the web](http://www.w3schools.com/sql/sql_quickref.asp) detailing all the commands you can issue.
 
@@ -60,7 +60,7 @@ This is standard SQL, and there are plenty of [references on the web](http://www
 
 ## The Library
 
-The Python library simply uses the sqlite Python API to issue some of the commands you have seen above, but programmatically so you don't have to use the Terminal.
+The Python library simply uses the sqlite Python API to programmatically issue some of the commands you have seen above.
 
 The code for `get_all_recipients` simply connects to the sqlite3 database, issues a `SELECT` query to retrieve all recipients, and returns them as instances of a custom Python class, `Recipient`.
 
@@ -78,10 +78,12 @@ If you've read everything above, this should be fairly straightforward:
 	connection.close()
 	return recipients
 
+Any command you enter in the `sqlite3` command line tool can be wrapped with a Python API as demonstrated above.
+
 ## Using the Library
 
 To try out the library, navigate to the `pymessage_lite` directory and enter `python imessage_test.py`. This test script will print out all your iMessage recipients and let you display all messages exchanged with a given recipient.
 
 ## Compatibility
 
-This has been written and tested with OS X 10.11 "El Capitan". It might stop working in future releases of OS X as iMessage evolves.
+This project has been written on and tested with OS X 10.11 "El Capitan". It might stop working in future releases of OS X as iMessage evolves.
